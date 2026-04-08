@@ -8,7 +8,9 @@ const Contact = () => {
     e.preventDefault();
     if (!formData.email || !formData.message) return;
     try {
-      const res = await fetch('http://localhost:5000/api/messages', {
+      const res = await fetch('https://portfolio-vbkz.onrender.com/api/messages',
+        // http://localhost:5000/api/messages', 
+        {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
