@@ -31,8 +31,9 @@ const Projects = () => {
   const [projects, setProjects] = useState([]);
 
   useEffect(() => {
-    fetch(' https://portfolio-vbkz.onrender.com/api/projects')
-    // 'http://localhost:5000/api/projects
+    fetch(
+      'https://portfolio-vbkz.onrender.com/api/projects')
+    // 'http://localhost:5000/api/projects')
       .then(res => res.json())
       .then(data => {
         if (Array.isArray(data) && data.length > 0) {
