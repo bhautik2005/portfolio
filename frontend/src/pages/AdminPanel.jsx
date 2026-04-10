@@ -22,8 +22,10 @@ const AdminPanel = () => {
   const [messagesLoading, setMessagesLoading] = useState(false);
   const [expandedMsg, setExpandedMsg] = useState(null);
 
-  const apiUrl = 'http://localhost:5000/api/projects';
-  const msgUrl = 'http://localhost:5000/api/messages';
+  const apiUrl = 'https://portfolio-vbkz.onrender.com/api/projects';
+  // const apiUrl = 'http://localhost:5000/api/projects';
+  const msgUrl = 'https://portfolio-vbkz.onrender.com/api/messages';
+  // const msgUrl = 'http://localhost:5000/api/messages';
 
   useEffect(() => {
     const token = getToken();
@@ -32,7 +34,8 @@ const AdminPanel = () => {
 
   const verifyToken = async (token) => {
     try {
-      const res = await fetch(`http://localhost:5000/api/admin/verify`, {
+      const res = await fetch(`https://portfolio-vbkz.onrender.com/api/admin/verify`, {
+        // const res = await fetch(`http://localhost:5000/api/admin/verify`, {
         method: 'POST',
         headers: { 'x-admin-password': token }
       });
@@ -62,7 +65,8 @@ const AdminPanel = () => {
     e.preventDefault();
     if (password.trim() === '') return;
     try {
-      const res = await fetch(`http://localhost:5000/api/admin/verify`, {
+      const res = await fetch(`https://portfolio-vbkz.onrender.com/api/admin/verify`, {
+        // await fetch(`http://localhost:5000/api/admin/verify`, {
         method: 'POST',
         headers: { 'x-admin-password': password }
       });

@@ -22,8 +22,9 @@ const Contact = () => {
 
     try {
       const res = await fetch(
-        // 'https://portfolio-vbkz.onrender.com/api/messages',
-        'http://localhost:5000/api/messages', {
+        'https://portfolio-vbkz.onrender.com/api/messages',
+        // 'http://localhost:5000/api/messages',
+        {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
