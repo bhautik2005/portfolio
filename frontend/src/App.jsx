@@ -1,27 +1,19 @@
 import React from 'react';
-import Navbar from './components/Navbar';
-import Hero from './components/Hero';
-import Projects from './components/Projects';
-import Experience from './components/Experience';
-import Education from './components/Education';
-import Skills from './components/Skills';
-import Contact from './components/Contact';
-import Footer from './components/Footer';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import Portfolio from './pages/Portfolio';
+import AdminPanel from './pages/AdminPanel';
+import { AdminProvider } from './context/AdminContext';
 
 function App() {
   return (
-    <div className="bg-surface text-on-surface selection:bg-primary selection:text-on-primary font-body">
-      <Navbar />
-      <main>
-        <Hero />
-        <Projects />
-        <Experience />
-        <Education />
-        <Skills />
-        <Contact />
-      </main>
-      <Footer />
-    </div>
+    <AdminProvider>
+      <Router>
+        <Routes>
+          <Route path="/" element={<Portfolio />} />
+          <Route path="/admin" element={<AdminPanel />} />
+        </Routes>
+      </Router>
+    </AdminProvider>
   );
 }
 

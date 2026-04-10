@@ -1,13 +1,20 @@
 import React, { useState } from 'react';
+import { useAdmin } from '../context/AdminContext';
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const [active, setActive] = useState("contact");
+  const [active, setActive] = useState(() => {
+    if (window.location.pathname === "/admin") return "admin";
+    const hash = window.location.hash.replace("#", "");
+    if (hash) return hash;
+    return "";
+  });
+  const { isAdmin } = useAdmin();
 
   return (
     <header className="fixed top-0 w-full z-50 bg-[#0e0e0e]/60 backdrop-blur-xl shadow-[0_4px_30px_rgba(45,212,191,0.05)]">
       <nav className="flex flex-wrap justify-between items-center px-8 py-4 max-w-7xl mx-auto font-['Space_Grotesk'] tracking-tight">
-        <a href="#" className="text-2xl font-bold tracking-tighter text-white">Bhautik</a>
+        <a href="/" className="text-2xl font-bold tracking-tighter text-white">Bhautik</a>
 
         {/* Mobile menu button */}
         <button
@@ -30,7 +37,7 @@ const Navbar = () => {
               ? "text-[#2DD4BF] border-b-2 border-[#2DD4BF] pb-1"
               : "text-[#adaaaa] hover:text-white"
               } transition-colors`}
-            href="#projects"
+            href="/#projects"
           >
             Projects
           </a>
@@ -43,7 +50,7 @@ const Navbar = () => {
               ? "text-[#2DD4BF] border-b-2 border-[#2DD4BF] pb-1"
               : "text-[#adaaaa] hover:text-white"
               } transition-colors`}
-            href="#experience"
+            href="/#experience"
           >
             Experience
           </a>
@@ -56,7 +63,7 @@ const Navbar = () => {
               ? "text-[#2DD4BF] border-b-2 border-[#2DD4BF] pb-1"
               : "text-[#adaaaa] hover:text-white"
               } transition-colors`}
-            href="#education"
+            href="/#education"
           >
             Education
           </a>
@@ -69,7 +76,7 @@ const Navbar = () => {
               ? "text-[#2DD4BF] border-b-2 border-[#2DD4BF] pb-1"
               : "text-[#adaaaa] hover:text-white"
               } transition-colors`}
-            href="#skills"
+            href="/#skills"
           >
             Skills
           </a>
@@ -82,10 +89,36 @@ const Navbar = () => {
               ? "text-[#2DD4BF] border-b-2 border-[#2DD4BF] pb-1"
               : "text-[#adaaaa] hover:text-white"
               } transition-colors`}
-            href="#contact"
+            href="/#contact"
           >
             Contact
           </a>
+          <a
+            onClick={() => {
+              setIsOpen(false);
+              setActive("admin");
+            }}
+            className={`${active === "admin"
+              ? "text-[#2DD4BF] border-b-2 border-[#2DD4BF] pb-1"
+              : "text-[#adaaaa] hover:text-white"
+              } transition-colors`}
+            href="/admin"
+          >
+            Admin
+          </a>
+
+          {/* {isAdmin && (
+            <a
+              onClick={() => {
+                setIsOpen(false);
+              }}
+              className="text-[#2DD4BF] font-bold hover:text-white transition-colors bg-[#2DD4BF]/10 px-4 py-1.5 rounded-lg ml-0 md:ml-2 mt-2 md:mt-0 flex items-center gap-1"
+              href="/admin"
+            >
+              <span className="material-symbols-outlined text-sm">add_circle</span>
+              Add Project
+            </a>
+          )} */}
 
           <div className="md:ml-4 flex items-center gap-4">
             <a onClick={() => setIsOpen(false)} href="https://github.com/bhautik2005" target="_blank" rel="noreferrer" className="text-[#adaaaa] hover:text-[#5bf4de] transition-colors" aria-label="GitHub">
