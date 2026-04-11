@@ -30,6 +30,11 @@ mongoose
   .then(() => console.log('✅ Connected to MongoDB'))
   .catch((err) => console.error('❌ MongoDB connection error:', err));
 
+// ─── Health Check ─────────────────────────────────────────────────────────────
+app.get('/health', (req, res) => {
+  res.status(200).json({ status: 'ok', timestamp: new Date().toISOString() });
+});
+
 // ─── Routes ───────────────────────────────────────────────────────────────────
 app.use('/api/projects', projectRoutes);
 app.use('/api/messages', messageRoutes);

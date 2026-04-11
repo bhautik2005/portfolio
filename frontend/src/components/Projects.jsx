@@ -27,26 +27,60 @@ const fallbackProjects = [
   }
 ];
 
+const BACKEND = 'https://portfolio-vbkz.onrender.com';
+
 const Projects = () => {
   const [projects, setProjects] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
 
   useEffect(() => {
-    fetch(
-      'https://portfolio-vbkz.onrender.com/api/projects'
-      // 'http://localhost:5000/api/projects'
-    )
-      .then(res => res.json())
-      .then(data => {
-        if (Array.isArray(data) && data.length > 0) {
-          setProjects(data);
-        } else {
-          setProjects(fallbackProjects);
+    let cancelled = false;
+
+    const fetchWithRetry = async (retries = 2, delayMs = 3000) => {
+      for (let attempt = 0; attempt <= retries; attempt++) {
+        try {
+          const controller = new AbortController();
+          const timeout = setTimeout(() => controller.abort(), 15000); // 15s timeout per attempt
+
+          const res = await fetch(`${BACKEND}/api/projects`, { signal: controller.signal });
+          clearTimeout(timeout);
+
+          if (!res.ok) throw new Error(`HTTP ${res.status}`);
+          const data = await res.json();
+
+          if (!cancelled) {
+            if (Array.isArray(data) && data.length > 0) {
+              setProjects(data);
+              setError(false);
+            } else {
+              setProjects(fallbackProjects);
+            }
+            setLoading(false);
+          }
+          return; // success — exit loop
+        } catch (err) {
+          if (err.name === 'AbortError') {
+            console.warn(`Projects fetch attempt ${attempt + 1} timed out`);
+          } else {
+            console.error(`Projects fetch attempt ${attempt + 1} failed:`, err);
+          }
+          if (attempt < retries) {
+            await new Promise(r => setTimeout(r, delayMs));
+          } else {
+            // All retries exhausted — use fallback
+            if (!cancelled) {
+              setProjects(fallbackProjects);
+              setError(true);
+              setLoading(false);
+            }
+          }
         }
-      })
-      .catch(err => {
-        console.error("Error fetching projects:", err);
-        setProjects(fallbackProjects);
-      });
+      }
+    };
+
+    fetchWithRetry();
+    return () => { cancelled = true; };
   }, []);
 
   return (
@@ -57,78 +91,68 @@ const Projects = () => {
             <h2 className="text-4xl lg:text-5xl font-bold tracking-tighter text-white mb-4">Projects Gallery</h2>
             <div className="h-1 w-24 bg-primary"></div>
           </div>
-          <div className="flex flex-wrap gap-2">
+        </div>
 
+        {/* Loading state */}
+        {loading && (
+          <div className="flex flex-col items-center justify-center py-20 gap-4">
+            <div className="w-12 h-12 border-4 border-primary/30 border-t-primary rounded-full animate-spin"></div>
+            <p className="text-on-surface-variant text-sm">Connecting to server, please wait…</p>
           </div>
-        </div>
+        )}
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {projects.length > 0 ? projects.map((project, idx) => (
-            // <div key={idx} className="group bg-surface-container-high rounded-xl overflow-hidden luminous-glow transition-all duration-300">
-            //   <div className="aspect-video relative overflow-hidden">
-            //     <img 
-            //       alt={project.title} 
-            //       className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" 
-            //       src={project.imageUrl} 
-            //     />
-            //     <div className="absolute inset-0 bg-primary/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-4">
-            //       <a className="w-12 h-12 rounded-full bg-white text-surface flex items-center justify-center hover:scale-110 transition-transform" href={project.linkUrl || '#'}>
-            //         <span className="material-symbols-outlined">link</span>
-            //       </a>
-            //       <a className="w-12 h-12 rounded-full bg-white text-surface flex items-center justify-center hover:scale-110 transition-transform" href={project.codeUrl || '#'}>
-            //         <span className="material-symbols-outlined">code</span>
-            //       </a>
-            //     </div>
-            //   </div>
-            //   <div className="p-6">
-            //     <div className="flex flex-wrap gap-2 mb-4">
-            //       {project.tags.map((tag, tIdx) => (
-            //         <span key={tIdx} className="text-[10px] uppercase font-bold tracking-wider px-2 py-1 rounded bg-secondary-container text-on-secondary-container">{tag}</span>
-            //       ))}
-            //     </div>
-            //     <h3 className="text-xl font-bold mb-2 group-hover:text-primary transition-colors">{project.title}</h3>
-            //     <p className="text-on-surface-variant text-sm mb-6 line-clamp-2">{project.description}</p>
-            //   </div>
-            // </div>
-            <div key={idx} className="group bg-surface-container-high rounded-xl overflow-hidden luminous-glow transition-all duration-300">
+        {/* Error notice (still shows fallback projects below) */}
+        {!loading && error && (
+          <p className="text-center text-on-surface-variant text-xs mb-6 opacity-60">
+            ⚠️ Could not reach server — showing sample projects.
+          </p>
+        )}
 
-              {/* Top Section: Title instead of Image */}
-              <div className="aspect-video relative overflow-hidden bg-surface-variant flex items-center justify-center p-6 text-center">
-                <h3 className="text-2xl font-bold text-on-surface group-hover:scale-105 transition-transform duration-500">
-                  {project.title}
-                </h3>
+        {/* Project grid */}
+        {!loading && (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {projects.map((project, idx) => (
+              <div key={project._id || idx} className="group bg-surface-container-high rounded-xl overflow-hidden luminous-glow transition-all duration-300">
 
-                {/* Hover Overlay for Links */}
-                <div className="absolute inset-0 bg-primary/30 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-center justify-center gap-4">
-                  <a className="w-12 h-12 rounded-full bg-white text-surface flex items-center justify-center hover:scale-110 transition-transform shadow-lg" href={project.linkUrl || '#'}>
-                    <span className="material-symbols-outlined">link</span>
-                  </a>
-                  <a className="w-12 h-12 rounded-full bg-white text-surface flex items-center justify-center hover:scale-110 transition-transform shadow-lg" href={project.codeUrl || '#'}>
-                    <span className="material-symbols-outlined">code</span>
-                  </a>
+                {/* Top Section: Title instead of Image */}
+                <div className="aspect-video relative overflow-hidden bg-surface-variant flex items-center justify-center p-6 text-center">
+                  <h3 className="text-2xl font-bold text-on-surface group-hover:scale-105 transition-transform duration-500">
+                    {project.title}
+                  </h3>
+
+                  {/* Hover Overlay for Links */}
+                  <div className="absolute inset-0 bg-primary/30 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-center justify-center gap-4">
+                    {project.linkUrl && project.linkUrl !== '#' && (
+                      <a className="w-12 h-12 rounded-full bg-white text-surface flex items-center justify-center hover:scale-110 transition-transform shadow-lg" href={project.linkUrl} target="_blank" rel="noreferrer">
+                        <span className="material-symbols-outlined">link</span>
+                      </a>
+                    )}
+                    {project.codeUrl && project.codeUrl !== '#' && (
+                      <a className="w-12 h-12 rounded-full bg-white text-surface flex items-center justify-center hover:scale-110 transition-transform shadow-lg" href={project.codeUrl} target="_blank" rel="noreferrer">
+                        <span className="material-symbols-outlined">code</span>
+                      </a>
+                    )}
+                  </div>
                 </div>
-              </div>
 
-              {/* Bottom Section: Tags and Description */}
-              <div className="p-6">
-                <div className="flex flex-wrap gap-2 mb-4">
-                  {project.tags.map((tag, tIdx) => (
-                    <span key={tIdx} className="text-[10px] uppercase font-bold tracking-wider px-2 py-1 rounded bg-secondary-container text-on-secondary-container">
-                      {tag}
-                    </span>
-                  ))}
+                {/* Bottom Section: Tags and Description */}
+                <div className="p-6">
+                  <div className="flex flex-wrap gap-2 mb-4">
+                    {(project.tags || []).map((tag, tIdx) => (
+                      <span key={tIdx} className="text-[10px] uppercase font-bold tracking-wider px-2 py-1 rounded bg-secondary-container text-on-secondary-container">
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                  <p className="text-on-surface-variant text-sm mb-2 line-clamp-3">
+                    {project.description}
+                  </p>
                 </div>
-                {/* Notice the title was removed from here so it doesn't show twice */}
-                <p className="text-on-surface-variant text-sm mb-2 line-clamp-3">
-                  {project.description}
-                </p>
-              </div>
 
-            </div>
-          )) : (
-            <p className="text-on-surface-variant">Loading projects or no projects available...</p>
-          )}
-        </div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </section>
   );
