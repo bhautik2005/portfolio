@@ -35,7 +35,7 @@ const PORT = process.env.PORT || 5000;
 //   allowedHeaders: ['Content-Type', 'x-admin-password'],
 //   credentials: true
 // }));
-import cors from "cors";
+ 
 
 app.use(cors({
   origin: (origin, callback) => {
