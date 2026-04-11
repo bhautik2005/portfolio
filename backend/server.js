@@ -15,21 +15,26 @@ const PORT = process.env.PORT || 5000;
 // ─── Middleware ───────────────────────────────────────────────────────────────
 const corsOrigin = (origin, callback) => {
   if (!origin) return callback(null, true);
+
   const allowed =
     origin === 'https://bhautik2005.pages.dev' ||
     origin === 'https://www.bhautik2005.pages.dev' ||
     /^https:\/\/[a-z0-9-]+\.pages\.dev$/i.test(origin) ||
     /^http:\/\/localhost:\d+$/.test(origin);
-  if (allowed) return callback(null, true);
-  callback(null, false);
+
+  if (allowed) {
+    callback(null, true);
+  } else {
+    callback(new Error("Not allowed by CORS"));
+  }
 };
 
 app.use(cors({
   origin: corsOrigin,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'x-admin-password'],
+  credentials: true
 }));
-app.use(express.json());
 
 // ─── Database Connection ──────────────────────────────────────────────────────
 mongoose
