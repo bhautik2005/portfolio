@@ -39,34 +39,69 @@
 // };
 
 // export default sendContactEmail;
+// import { Resend } from "resend";
+
+// const resend = new Resend(process.env.RESEND_API_KEY);
+
+// const sendContactEmail = async ({ name, email, subject, message }) => {
+//   try {
+//     console.log("📧 Sending email via Resend...");
+
+//     const response = await resend.emails.send({
+//       from: "onboarding@resend.dev", // default sender (works instantly)
+//       to: process.env.EMAIL_USER,    // your email
+//       subject: `📩 ${subject}`,
+//       reply_to: email,               // allow replying to user
+//       html: `
+//         <h2>New Message 🚀</h2>
+//         <p><b>Name:</b> ${name}</p>
+//         <p><b>Email:</b> ${email}</p>
+//         <p><b>Subject:</b> ${subject}</p>
+//         <p><b>Message:</b></p>
+//         <p>${message}</p>
+//       `,
+//     });
+
+//     console.log("✅ Email sent via Resend:", response);
+
+//   } catch (error) {
+//     console.error("❌ Email Error:", error);
+//     throw error;
+//   }
+// };
+
 import { Resend } from "resend";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 const sendContactEmail = async ({ name, email, subject, message }) => {
   try {
-    console.log("📧 Sending email via Resend...");
+    console.log("📧 Sending notification email...");
 
-    const response = await resend.emails.send({
-      from: "onboarding@resend.dev", // default sender (works instantly)
-      to: process.env.EMAIL_USER,    // your email
-      subject: `📩 ${subject}`,
-      reply_to: email,               // allow replying to user
-      html: `
-        <h2>New Message 🚀</h2>
-        <p><b>Name:</b> ${name}</p>
-        <p><b>Email:</b> ${email}</p>
-        <p><b>Subject:</b> ${subject}</p>
-        <p><b>Message:</b></p>
-        <p>${message}</p>
+    await resend.emails.send({
+      from: "Portfolio Contact <onboarding@resend.dev>", // sender
+      to: process.env.EMAIL_USER, // your email
+
+      reply_to: email, // 🔥 important (reply goes to user)
+
+      subject: `📩 New Message from ${name}`,
+
+      text: `
+New Message 🚀
+
+Name: ${name}
+Email: ${email}
+Subject: ${subject}
+
+Message:
+${message}
       `,
     });
 
-    console.log("✅ Email sent via Resend:", response);
+    console.log("✅ Email sent successfully");
 
   } catch (error) {
     console.error("❌ Email Error:", error);
-    throw error;
   }
 };
 
