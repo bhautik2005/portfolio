@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { getApiBaseUrl } from '../config/api';
 
 const fallbackProjects = [
   {
@@ -27,8 +28,6 @@ const fallbackProjects = [
   }
 ];
 
-const BACKEND = 'https://portfolio-vbkz.onrender.com';
-
 const Projects = () => {
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -37,13 +36,18 @@ const Projects = () => {
   useEffect(() => {
     let cancelled = false;
 
-    const fetchWithRetry = async (retries = 2, delayMs = 3000) => {
+    const base = getApiBaseUrl();
+    const fetchWithRetry = async (retries = 4, delayMs = 4000) => {
       for (let attempt = 0; attempt <= retries; attempt++) {
         try {
           const controller = new AbortController();
-          const timeout = setTimeout(() => controller.abort(), 15000); // 15s timeout per attempt
+          const timeout = setTimeout(() => controller.abort(), 30000); // Render cold start can exceed 15s
 
-          const res = await fetch(`${BACKEND}/api/projects`, { signal: controller.signal });
+          const res = await fetch(`${base}/api/projects`, {
+            signal: controller.signal,
+            cache: 'no-store',
+            headers: { Accept: 'application/json' },
+          });
           clearTimeout(timeout);
 
           if (!res.ok) throw new Error(`HTTP ${res.status}`);

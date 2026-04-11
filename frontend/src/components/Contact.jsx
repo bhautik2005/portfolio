@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { getApiBaseUrl } from '../config/api';
 
 const Contact = () => {
   const [formData, setFormData] = useState({ name: '', email: '', subject: '', message: '' });
@@ -22,8 +23,7 @@ const Contact = () => {
 
     try {
       const res = await fetch(
-        'https://portfolio-vbkz.onrender.com/api/messages',
-        // 'http://localhost:5000/api/messages',
+        `${getApiBaseUrl()}/api/messages`,
         {
         method: "POST",
         headers: {

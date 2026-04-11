@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Navbar from '../components/Navbar';
 import { useAdmin } from '../context/AdminContext';
+import { getApiBaseUrl } from '../config/api';
 
 const AdminPanel = () => {
   const { isAdmin: isAuthenticated, login, logout, getToken } = useAdmin();
@@ -22,10 +23,9 @@ const AdminPanel = () => {
   const [messagesLoading, setMessagesLoading] = useState(false);
   const [expandedMsg, setExpandedMsg] = useState(null);
 
-  const apiUrl = 'https://portfolio-vbkz.onrender.com/api/projects';
-  // const apiUrl = 'http://localhost:5000/api/projects';
-  const msgUrl = 'https://portfolio-vbkz.onrender.com/api/messages';
-  // const msgUrl = 'http://localhost:5000/api/messages';
+  const apiBase = getApiBaseUrl();
+  const apiUrl = `${apiBase}/api/projects`;
+  const msgUrl = `${apiBase}/api/messages`;
 
   useEffect(() => {
     const token = getToken();
@@ -34,8 +34,7 @@ const AdminPanel = () => {
 
   const verifyToken = async (token) => {
     try {
-      const res = await fetch(`https://portfolio-vbkz.onrender.com/api/admin/verify`, {
-        // const res = await fetch(`http://localhost:5000/api/admin/verify`, {
+      const res = await fetch(`${apiBase}/api/admin/verify`, {
         method: 'POST',
         headers: { 'x-admin-password': token }
       });
@@ -65,8 +64,7 @@ const AdminPanel = () => {
     e.preventDefault();
     if (password.trim() === '') return;
     try {
-      const res = await fetch(`https://portfolio-vbkz.onrender.com/api/admin/verify`, {
-        // await fetch(`http://localhost:5000/api/admin/verify`, {
+      const res = await fetch(`${apiBase}/api/admin/verify`, {
         method: 'POST',
         headers: { 'x-admin-password': password }
       });
